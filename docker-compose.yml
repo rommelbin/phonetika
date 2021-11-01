@@ -1,0 +1,54 @@
+version: '3.7'
+services:
+  laravel_container:
+    container_name: laravel_container
+    build: app_dockerfile
+    volumes:
+      - ${APP_PATH_HOST}:${APP_PATH_CONTAINER}
+    networks:
+      - app
+    restart: unless-stopped
+    depends_on:
+      - postgres
+  web_server:
+    image: nginx:alpine
+    container_name: webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+    volumes:
+      - ${APP_PATH_HOST}:${APP_PATH_CONTAINER}
+      - ${APP_PATH_NGINX_LOCAL}:${APP_PATH_NGINX_CONTAINER}
+    networks:
+      - app
+    depends_on:
+      - laravel_container
+  postgres:
+    container_name: postgres
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - app
+    volumes:
+      - ./.pgdata:/var/lib/postgresql/data
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_LISTEN_PORT: "8081"
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    networks:
+      - app
+networks:
+  app:
+    driver: bridge
