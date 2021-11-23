@@ -12,7 +12,7 @@ services:
       - postgres
   web_server:
     image: nginx:alpine
-    container_name: webserver
+    container_name: webserver_phonetika
     restart: unless-stopped
     tty: true
     ports:
@@ -25,7 +25,7 @@ services:
     depends_on:
       - laravel_container
   postgres:
-    container_name: postgres
+    container_name: postgres_phonetika
     image: postgres
     environment:
       - POSTGRES_USER=postgres
@@ -35,15 +35,15 @@ services:
     volumes:
       - ./.pgdata:/var/lib/postgresql/data
   pgadmin:
-    container_name: pgadmin_container
+    container_name: pgadmin_phonetika
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
-      PGADMIN_LISTEN_PORT: "8081"
+      PGADMIN_LISTEN_PORT: "8082"
     ports:
-      - "8081:8081"
+      - "8082:8082"
     restart: unless-stopped
     depends_on:
       - postgres
